@@ -7,16 +7,27 @@ Copyright end
 
 PRODUCT_ID = {
     "FortiGate Virtual Machine - Service Bundle": 1,
-    "FortiGate Virtual Machine - A La Carte Services": 4,
-    "FortiWeb Virtual Machine - Service Bundle": 3,
-    "FortiClient EMS On-Prem": 5,
     "FortiManager Virtual Machine": 2,
+    "FortiWeb Virtual Machine - Service Bundle": 3,
+    "FortiGate Virtual Machine - A La Carte Services": 4,
+    "FortiClient EMS On-Prem": 5,
     "FortiAnalyzer Virtual Machine": 7,
     "FortiPortal Virtual Machine": 8,
     "FortiADC Virtual Machine": 9,
+    "FortiSOAR Virtual Machine": 10,
+    "FortiMail Virtual Machine": 11,
+    "FortiNAC Virtual Machine": 12,
     "FortiGate Hardware": 101,
+    "FortiAP Hardware": 102,
+    "FortiSwitch Hardware": 103,
     "FortiWeb Cloud - Private": 202,
-    "FortiWeb Cloud - Public": 203
+    "FortiWeb Cloud - Public": 203,
+    "FortiClient EMS Cloud": 204,
+    "FortiSASE": 205,
+    "FortiEDR": 206,
+    "FortiNDR Cloud": 207,
+    "FortiRecon": 208,
+    "FortiSIEM Cloud": 209
 }
 
 CPU_SIZE = {
