@@ -1,6 +1,6 @@
 {
   "name": "fortinet-fortiflex",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "label": "Fortinet FortiFlex",
   "category": "Asset Management",
   "description": "FortiFlex is a points-based program that empowers organizations to provision the Fortinet services and solutions, and offers the flexibility to scale their security solutions and services up or down as well as in or out to meet their dynamic deployment demands and evolving requirements.",
@@ -2078,6 +2078,66 @@
         ]
       },
       "enabled": true
+    },
+    {
+      "operation": "execute_api_request",
+      "category": "miscellaneous",
+      "annotation": "execute_api_request",
+      "description": "Calls any endpoint of the FortiFlex HTTP API with the configured credentials. A full URL is refused so the credentials only ever go to the configured server.",
+      "title": "Execute API Request",
+      "enabled": true,
+      "parameters": [
+        {
+          "title": "Endpoint",
+          "description": "Path on the configured server, for example /ES/api/fortiflex/v2/programs/list. A full URL is refused.",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "endpoint",
+          "tooltip": "Path on the configured server, for example /ES/api/fortiflex/v2/programs/list. A full URL is refused.",
+          "placeholder": "e.g. /ES/api/fortiflex/v2/programs/list"
+        },
+        {
+          "title": "Method",
+          "description": "HTTP method to use. Defaults to GET.",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "type": "select",
+          "name": "method",
+          "tooltip": "HTTP method to use. Defaults to GET.",
+          "options": [
+            "GET",
+            "POST",
+            "PUT",
+            "PATCH",
+            "DELETE"
+          ],
+          "value": "GET"
+        },
+        {
+          "title": "Query Parameters",
+          "description": "(Optional) JSON object of query string parameters to send with the request.",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "type": "json",
+          "name": "query_params",
+          "tooltip": "(Optional) JSON object of query string parameters to send with the request."
+        },
+        {
+          "title": "Request Body",
+          "description": "(Optional) JSON object sent as the request body with POST, PUT and PATCH.",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "type": "json",
+          "name": "request_body",
+          "tooltip": "(Optional) JSON object sent as the request body with POST, PUT and PATCH."
+        }
+      ],
+      "output_schema": {}
     }
   ]
 }

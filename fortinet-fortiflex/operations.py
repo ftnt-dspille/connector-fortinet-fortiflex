@@ -9,6 +9,7 @@ from .fortiflex_api_auth import *
 from .constants import *
 from connectors.core.connector import get_logger, ConnectorError
 import requests, json
+from urllib.parse import unquote, urlparse
 
 logger = get_logger('fortinet-fortiflex')
 
@@ -329,6 +330,72 @@ def get_group_next_token(config, params, connector_info):
         raise ConnectorError("{0}".format(str(err)))
 
 
+def safe_endpoint(endpoint):
+    """A path on the configured server, or an error.
+
+    A full URL, a `//host` start, a `..` segment (also percent-encoded, up to
+    three layers) or a backslash is refused, so the access token can never be
+    sent to another host.
+    """
+    endpoint = str(endpoint or '').strip()
+    if not endpoint:
+        raise ConnectorError('Endpoint is required')
+    path = endpoint.split('?')[0]
+    for _ in range(3):
+        path = unquote(path)
+    parsed = urlparse(endpoint)
+    if (parsed.scheme or parsed.netloc or path.startswith('//') or '..' in path.split('/')
+            or '\\' in path):
+        raise ConnectorError('Endpoint must be a path on the configured server, '
+                             'for example /ES/api/fortiflex/v2/programs/list - not a full URL')
+    return endpoint if endpoint.startswith('/') else '/' + endpoint
+
+
+def json_object(value, name):
+    """A JSON object from a dict or a JSON string; blank means none."""
+    if value is None or value == '' or value == {}:
+        return None
+    if isinstance(value, str):
+        try:
+            value = json.loads(value)
+        except ValueError:
+            raise ConnectorError('{0} must be valid JSON'.format(name))
+    if not isinstance(value, dict):
+        raise ConnectorError('{0} must be a JSON object'.format(name))
+    return value
+
+
+def execute_api_request(config, params, connector_info):
+    """Call any FortiFlex API endpoint with the configured credentials."""
+    method = (params.get('method') or 'GET').upper()
+    if method not in ('GET', 'POST', 'PUT', 'PATCH', 'DELETE'):
+        raise ConnectorError('Method must be GET, POST, PUT, PATCH or DELETE')
+    endpoint = safe_endpoint(params.get('endpoint'))
+    query = json_object(params.get('query_params'), 'Query Parameters')
+    body = json_object(params.get('request_body'), 'Request Body')
+    try:
+        co = FortiFlex(config)
+        token = co.validate_token(config, connector_info)
+        headers = {'Content-Type': 'application/json', 'Authorization': token}
+        data = json.dumps(body) if body is not None and method in ('POST', 'PUT', 'PATCH') else None
+        response = requests.request(method, co.host + endpoint, headers=headers, verify=co.verify_ssl,
+                                    data=data, params=query, timeout=60)
+    except ConnectorError:
+        raise
+    except requests.exceptions.SSLError:
+        raise ConnectorError('SSL certificate validation failed')
+    except requests.exceptions.RequestException as err:
+        raise ConnectorError('Request error: {0}'.format(err))
+    if response.status_code >= 400:
+        raise ConnectorError('HTTP {0} {1}: {2}'.format(response.status_code, response.reason, response.text))
+    if not response.text:
+        return {}
+    try:
+        return response.json()
+    except ValueError:
+        return {'response': response.text}
+
+
 def _check_health(config, connector_info):
     try:
         return check(config, connector_info)
@@ -354,5 +421,6 @@ operations = {
     'regenerate_token_for_vm': regenerate_token_for_vm,
     'get_point_usage_for_vm': get_point_usage_for_vm,
     'get_groups': get_groups,
-    'get_group_next_token': get_group_next_token
+    'get_group_next_token': get_group_next_token,
+    'execute_api_request': execute_api_request
 }
